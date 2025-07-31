@@ -1,19 +1,36 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerMovement2D : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D))]
+public class PlayerController2D : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 5f;
 
-    void Update()
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+
+    private void Awake()
     {
-        // Get 2D input
-        float moveX = Input.GetAxis("Horizontal");  
-        float moveY = Input.GetAxis("Vertical");
+        rb = GetComponent<Rigidbody2D>();
+    }
 
-        // Movement vector
-        Vector3 move = new Vector3(moveX, moveY, 0);
+    private void Update()
+    {
+        moveInput = new Vector2(
+            Keyboard.current.aKey.isPressed ? -1 :
+            Keyboard.current.dKey.isPressed ? 1 : 0,
+            0
+        );
 
-        // Apply movement
-        transform.position += move * moveSpeed * Time.deltaTime;
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
+    }
+
+    private void FixedUpdate()
+    { 
+        rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
     }
 }
